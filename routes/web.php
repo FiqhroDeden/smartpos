@@ -59,7 +59,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/brand/delete/{id}', 'delete')->name('brand.delete');
     });
     Route::controller(UnitController::class)->group(function (){
-        Route::get('/unit/add', 'index')->name('unit.add');
+        Route::get('/unit/list', 'index')->name('unit.list');
+        Route::post('/unit/store', 'store')->name('unit.store');
+        Route::post('/unit/update', 'update')->name('unit.update');
+        Route::post('/unit/delete/{id}', 'delete')->name('unit.delete');
+
     });
     Route::controller(ProductController::class)->group(function (){
         Route::get('/product/add', 'index')->name('product.add');
