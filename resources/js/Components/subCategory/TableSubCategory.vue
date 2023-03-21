@@ -7,7 +7,6 @@ import Pagination from "@/Shared/Pagination.vue";
 defineProps({
     subCategories: Object,
     numbers: Number,
-    filters: Object,
     categories: Object,
 });
 
@@ -58,9 +57,9 @@ function deleteConfirm(id) {
             </div>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive p-0">
             <table class="table table-hover text-nowrap">
-                <thead class="thead-light">
+                <thead>
                     <tr>
                         <th></th>
                         <th>Main Category</th>

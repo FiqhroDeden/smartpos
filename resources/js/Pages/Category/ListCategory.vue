@@ -4,7 +4,7 @@ import MainLayout from "@/Layouts/MainLayout.vue";
 import TableCategory from "@/Components/category/TableCategory.vue";
 import AddCategory from "@/Components/category/AddCategory.vue";
 
-defineProps({ categories: Object, numbers: Number, filters: Object });
+defineProps({ categories: Object, numbers: Number });
 </script>
 
 <template>
@@ -46,7 +46,6 @@ defineProps({ categories: Object, numbers: Number, filters: Object });
                             <TableCategory
                                 :categories="categories"
                                 :numbers="numbers"
-                                :filters="filters"
                             />
                         </div>
                         <div class="col-sm-12 col-lg-6 mb-3 mb-lg-2">

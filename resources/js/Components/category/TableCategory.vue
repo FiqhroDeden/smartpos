@@ -5,7 +5,7 @@ import { ref, getCurrentInstance } from "vue";
 import { inject } from "vue";
 import Pagination from "@/Shared/Pagination.vue";
 import SearchFilter from "@/Components/category/SearchFilter.vue";
-defineProps({ categories: Object, numbers: Number, filters: Object });
+defineProps({ categories: Object, numbers: Number });
 const toastr = useToastr();
 const form = useForm({
     id: null,

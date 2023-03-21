@@ -156,10 +156,10 @@ import { Link } from "@inertiajs/vue3";
                     </li>
                     <li class="nav-item">
                         <Link
-                            :href="route('brand.add')"
+                            :href="route('brand.list')"
                             class="nav-link"
                             :class="
-                                route().current('brand.add') ? 'active' : ''
+                                route().current('brand.list') ? 'active' : ''
                             "
                         >
                             <i class="nav-icon fas fa-star"></i>
