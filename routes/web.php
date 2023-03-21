@@ -43,11 +43,14 @@ Route::middleware('auth')->group(function () {
     });
     Route::controller(CategoryController::class)->group(function (){
         Route::get('/category/list', 'index')->name('category.list');
-        Route::get('/category/add-sub-category', 'subCategory')->name('category.subCategory');
+        Route::get('/category/sub-category', 'subCategory')->name('category.subCategory');
         Route::post('/category/store', 'store')->name('category.store');
+        Route::post('/category/sub-category/store', 'subCategoryStore')->name('category.subCategory.store');
         Route::post('/category/update', 'update')->name('category.update');
+        Route::post('/category/sub-category/update', 'subCategoryUpdate')->name('category.subCategory.update');
         Route::post('/category/update-status/{id}', 'updateStatus')->name('category.status.update');
         Route::post('/category/delete/{id}', 'delete')->name('category.delete');
+        Route::post('/category/sub-category/delete/{id}', 'subCategoryDelete')->name('category.subCategory.delete');
     });
     Route::controller(BrandController::class)->group(function (){
         Route::get('/brand/add', 'index')->name('brand.add');
