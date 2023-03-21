@@ -1,18 +1,15 @@
 <script setup>
 import { Head } from "@inertiajs/vue3";
-import MainLayout from "@/Layouts/MainLayout.vue";
-import TableSubCategory from "@/Components/subCategory/TableSubCategory.vue";
-import AddSubCategory from "@/Components/subCategory/AddSubCategory.vue";
 
-defineProps({
-    subCategories: Object,
-    numbers: Number,
-    categories: Object,
-});
+import MainLayout from "@/Layouts/MainLayout.vue";
+import BrandTable from "@/Components/brand/BrandTable.vue";
+import AddBrand from "@/Components/brand/AddBrand.vue";
+
+defineProps({ brands: Object, numbers: Number });
 </script>
 
 <template>
-    <Head title="Sub Category" />
+    <Head title="Brand List" />
     <main-layout>
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
@@ -20,7 +17,7 @@ defineProps({
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1 class="m-0">Sub Category</h1>
+                            <h1 class="m-0">Brand List</h1>
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-6">
@@ -28,9 +25,9 @@ defineProps({
                                 <li class="breadcrumb-item">
                                     <a href="#">Home</a>
                                 </li>
-                                <li class="breadcrumb-item">Category</li>
+                                <li class="breadcrumb-item">Brand</li>
                                 <li class="breadcrumb-item active">
-                                    Add Sub Category
+                                    Brand List
                                 </li>
                             </ol>
                         </div>
@@ -47,15 +44,10 @@ defineProps({
                 <div class="container-fluid">
                     <div class="row gx-2 gx-lg-3">
                         <div class="col-sm-12 col-lg-6 mb-3 mb-lg-2">
-                            <TableSubCategory
-                                :categories="categories"
-                                :subCategories="subCategories"
-                                :numbers="numbers"
-                            />
+                            <BrandTable :brands="brands" :numbers="numbers" />
                         </div>
-
                         <div class="col-sm-12 col-lg-6 mb-3 mb-lg-2">
-                            <AddSubCategory :categories="categories" />
+                            <AddBrand />
                         </div>
                     </div>
                 </div>

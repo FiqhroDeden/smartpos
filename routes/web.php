@@ -53,7 +53,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/category/sub-category/delete/{id}', 'subCategoryDelete')->name('category.subCategory.delete');
     });
     Route::controller(BrandController::class)->group(function (){
-        Route::get('/brand/add', 'index')->name('brand.add');
+        Route::get('/brand/list', 'index')->name('brand.list');
+        Route::post('/brand/store', 'store')->name('brand.store');
+        Route::post('/brand/update', 'update')->name('brand.update');
+        Route::post('/brand/delete/{id}', 'delete')->name('brand.delete');
     });
     Route::controller(UnitController::class)->group(function (){
         Route::get('/unit/add', 'index')->name('unit.add');
