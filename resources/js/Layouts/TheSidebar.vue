@@ -168,9 +168,11 @@ import { Link } from "@inertiajs/vue3";
                     </li>
                     <li class="nav-item">
                         <Link
-                            :href="route('unit.add')"
+                            :href="route('unit.list')"
                             class="nav-link"
-                            :class="route().current('unit.add') ? 'active' : ''"
+                            :class="
+                                route().current('unit.list') ? 'active' : ''
+                            "
                         >
                             <i class="nav-icon fas fa-tag"></i>
                             <p>Unit</p>
