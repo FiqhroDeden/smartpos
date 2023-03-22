@@ -70,6 +70,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/product/list', 'list')->name('product.list');
         Route::get('/product/bulk-import', 'bulkImport')->name('product.bulkImport');
         Route::get('/product/bulk-export', 'bulkExport')->name('product.bulkExport');
+        Route::post('/product/get-subcategories', 'getSubcategories')->name('product.get.subcategories');
     });
 
     Route::controller(StockController::class)->group(function (){

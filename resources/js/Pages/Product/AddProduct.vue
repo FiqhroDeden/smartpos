@@ -1,6 +1,44 @@
 <script setup>
-import { Head } from "@inertiajs/vue3";
+import { Head, useForm } from "@inertiajs/vue3";
+import { useToastr } from "@/toastr.js";
+import { watch, ref } from "vue";
+import { router } from "@inertiajs/vue3";
+import axios from "axios";
 import MainLayout from "@/Layouts/MainLayout.vue";
+
+defineProps({
+    brands: Object,
+    units: Object,
+    categories: Object,
+});
+
+const form = useForm({
+    id: null,
+    name: null,
+    code: null,
+    brand_id: null,
+    quantity: null,
+    unit_id: null,
+    unit_value: null,
+    category_id: "",
+    subcategory_id: null,
+    selling_price: null,
+    purchase_price: null,
+    discount_type: null,
+    discount_value: null,
+    tax: null,
+    supplier_id: null,
+    image: null,
+});
+const seletedCategory = ref("");
+const subCategories = ref({});
+watch(seletedCategory, (value) => {
+    axios
+        .post("/product/get-subcategories", { id: seletedCategory.value })
+        .then((response) => {
+            subCategories.value = response.data.data;
+        });
+});
 </script>
 
 <template>
@@ -46,11 +84,6 @@ import MainLayout from "@/Layouts/MainLayout.vue";
                                         method="post"
                                         enctype="multipart/form-data"
                                     >
-                                        <input
-                                            type="hidden"
-                                            name="_token"
-                                            value="6ygODdB6JbOb9ADW7Y8V6KxAynhVeLQVmC3DALxc"
-                                        />
                                         <div class="row">
                                             <div
                                                 class="col-12 col-sm-6 col-md-6 col-lg-6"
@@ -105,11 +138,12 @@ import MainLayout from "@/Layouts/MainLayout.vue";
                                                         <option value="">
                                                             --Select--
                                                         </option>
-                                                        <option value="">
-                                                            Gucci
-                                                        </option>
-                                                        <option value="">
-                                                            Dior
+                                                        <option
+                                                            v-for="brand in brands"
+                                                            :key="brand.id"
+                                                            :value="brand.id"
+                                                        >
+                                                            {{ brand.name }}
                                                         </option>
                                                     </select>
                                                 </div>
@@ -152,11 +186,12 @@ import MainLayout from "@/Layouts/MainLayout.vue";
                                                         <option value="">
                                                             --Select--
                                                         </option>
-                                                        <option value="">
-                                                            Kg
-                                                        </option>
-                                                        <option value="">
-                                                            Ltr
+                                                        <option
+                                                            v-for="unit in units"
+                                                            :key="unit.id"
+                                                            :value="unit.id"
+                                                        >
+                                                            {{ unit.name }}
                                                         </option>
                                                     </select>
                                                 </div>
@@ -195,15 +230,22 @@ import MainLayout from "@/Layouts/MainLayout.vue";
                                                         name=""
                                                         class="form-control"
                                                         id=""
+                                                        v-model="
+                                                            seletedCategory
+                                                        "
                                                     >
-                                                        <option value="">
+                                                        <option
+                                                            value=""
+                                                            selected
+                                                        >
                                                             --Select--
                                                         </option>
-                                                        <option value="">
-                                                            Food
-                                                        </option>
-                                                        <option value="">
-                                                            Cooking Essentials
+                                                        <option
+                                                            v-for="category in categories"
+                                                            :key="category.id"
+                                                            :value="category.id"
+                                                        >
+                                                            {{ category.name }}
                                                         </option>
                                                     </select>
                                                 </div>
@@ -222,6 +264,18 @@ import MainLayout from "@/Layouts/MainLayout.vue";
                                                     >
                                                         <option value="">
                                                             --Select--
+                                                        </option>
+                                                        <option
+                                                            v-for="subCategory in subCategories"
+                                                            v-if="subCategories"
+                                                            :key="
+                                                                subCategory.id
+                                                            "
+                                                            value=""
+                                                        >
+                                                            {{
+                                                                subCategory.name
+                                                            }}
                                                         </option>
                                                     </select>
                                                 </div>
