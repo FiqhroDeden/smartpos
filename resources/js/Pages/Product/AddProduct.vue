@@ -1,8 +1,7 @@
 <script setup>
 import { Head, useForm } from "@inertiajs/vue3";
 import { useToastr } from "@/toastr.js";
-import { watch, ref } from "vue";
-import { router } from "@inertiajs/vue3";
+import { watch, ref, getCurrentInstance } from "vue";
 import axios from "axios";
 import MainLayout from "@/Layouts/MainLayout.vue";
 
@@ -12,24 +11,26 @@ defineProps({
     categories: Object,
 });
 
+const toastr = useToastr();
 const form = useForm({
     id: null,
     name: null,
     code: null,
-    brand_id: null,
+    brand_id: "",
     quantity: null,
-    unit_id: null,
+    unit_id: "",
     unit_value: null,
     category_id: "",
-    subcategory_id: null,
+    subcategory_id: "",
     selling_price: null,
     purchase_price: null,
-    discount_type: null,
+    discount_type: 1,
     discount_value: null,
     tax: null,
-    supplier_id: null,
+    supplier_id: "",
     image: null,
 });
+
 const seletedCategory = ref("");
 const subCategories = ref({});
 watch(seletedCategory, (value) => {
@@ -37,10 +38,58 @@ watch(seletedCategory, (value) => {
         .post("/product/get-subcategories", { id: seletedCategory.value })
         .then((response) => {
             subCategories.value = response.data.data;
+            form.category_id = response.data.data[0].category_id;
         });
+    // form.category_id = selectedCategory.value;
 });
-</script>
 
+const deleteImage = ref(false);
+const instance = getCurrentInstance();
+const imageFile = ref();
+const imageUrl = ref();
+function handleImageSelected(e) {
+    if (!e.target.files.length) return;
+    imageFile.value = e.target.files[0];
+    console.log(e.target.files[0]);
+    let reader = new FileReader();
+    reader.readAsDataURL(imageFile.value);
+    reader.onload = (e) => {
+        imageUrl.value = e.target.result;
+    };
+    deleteImage.value = !deleteImage.value;
+}
+function resetImage() {
+    instance.refs.file.value = null;
+    imageFile.value = null;
+    imageUrl.value = null;
+    deleteImage.value = !deleteImage.value;
+}
+
+function generateCode() {
+    let newCode = "";
+    for (let i = 0; i < 6; i++) {
+        newCode += Math.floor(Math.random() * 9) + 1;
+    }
+    form.code = newCode;
+}
+
+function submit() {
+    form.post("/product/store", {
+        preserveScroll: false,
+        onSuccess: () => {
+            form.reset();
+            toastr.success("Product Created.");
+            instance.refs.file.value = null;
+            imageFile.value = null;
+            imageUrl.value = null;
+            deleteImage.value = !deleteImage.value;
+        },
+        onError: () => {
+            toastr.error("Invalid Input.");
+        },
+    });
+}
+</script>
 <template>
     <Head title="Add New Product" />
     <main-layout>
@@ -80,8 +129,7 @@ watch(seletedCategory, (value) => {
                             <div class="card">
                                 <div class="card-body">
                                     <form
-                                        action="https://6pos.6amtech.com/admin/category/store"
-                                        method="post"
+                                        @submit.prevent="submit"
                                         enctype="multipart/form-data"
                                     >
                                         <div class="row">
@@ -99,28 +147,63 @@ watch(seletedCategory, (value) => {
                                                     <input
                                                         type="text"
                                                         name="name"
-                                                        class="form-control"
+                                                        id="name"
+                                                        v-model="form.name"
+                                                        class="form-control invalid"
                                                         placeholder="Product name"
                                                     />
+                                                    <small
+                                                        v-if="form.errors.name"
+                                                        style="color: red"
+                                                    >
+                                                        {{ form.errors.name }}
+                                                    </small>
                                                 </div>
                                             </div>
                                             <div
                                                 class="col-12 col-sm-6 col-md-6 col-lg-6"
                                             >
                                                 <div class="form-group">
-                                                    <label for="">
-                                                        Product code SKU
-                                                        <span
-                                                            class="text-danger"
-                                                            >*
-                                                        </span></label
+                                                    <div
+                                                        class="row"
+                                                        style="margin-left: 0px"
                                                     >
+                                                        <label for="">
+                                                            Product code SKU
+                                                            <span
+                                                                class="text-danger"
+                                                                >*
+                                                            </span>
+                                                        </label>
+                                                        <a
+                                                            type="button"
+                                                            style="
+                                                                position: absolute;
+                                                                right: 10px;
+                                                                top: 5px;
+                                                                color: blue;
+                                                            "
+                                                            @click="
+                                                                generateCode
+                                                            "
+                                                            >Generate code</a
+                                                        >
+                                                    </div>
+
                                                     <input
-                                                        type="text"
-                                                        name="name"
+                                                        type="number"
+                                                        name="code"
+                                                        id="code"
+                                                        v-model="form.code"
                                                         class="form-control"
                                                         placeholder="Product code"
                                                     />
+                                                    <small
+                                                        v-if="form.errors.code"
+                                                        style="color: red"
+                                                    >
+                                                        {{ form.errors.code }}
+                                                    </small>
                                                 </div>
                                             </div>
                                             <div
@@ -131,9 +214,10 @@ watch(seletedCategory, (value) => {
                                                         Brand
                                                     </label>
                                                     <select
-                                                        name=""
+                                                        name="brand_id"
                                                         class="form-control"
-                                                        id=""
+                                                        id="brand_id"
+                                                        v-model="form.brand_id"
                                                     >
                                                         <option value="">
                                                             --Select--
@@ -146,6 +230,16 @@ watch(seletedCategory, (value) => {
                                                             {{ brand.name }}
                                                         </option>
                                                     </select>
+                                                    <small
+                                                        v-if="
+                                                            form.errors.brand_id
+                                                        "
+                                                        style="color: red"
+                                                    >
+                                                        {{
+                                                            form.errors.brand_id
+                                                        }}
+                                                    </small>
                                                 </div>
                                             </div>
                                             <div
@@ -160,11 +254,22 @@ watch(seletedCategory, (value) => {
                                                         </span></label
                                                     >
                                                     <input
-                                                        type="text"
+                                                        type="number"
                                                         name="name"
+                                                        v-model="form.quantity"
                                                         class="form-control"
                                                         placeholder="Quantity"
                                                     />
+                                                    <small
+                                                        v-if="
+                                                            form.errors.quantity
+                                                        "
+                                                        style="color: red"
+                                                    >
+                                                        {{
+                                                            form.errors.quantity
+                                                        }}
+                                                    </small>
                                                 </div>
                                             </div>
                                             <div
@@ -181,6 +286,7 @@ watch(seletedCategory, (value) => {
                                                     <select
                                                         name=""
                                                         class="form-control"
+                                                        v-model="form.unit_id"
                                                         id=""
                                                     >
                                                         <option value="">
@@ -194,6 +300,16 @@ watch(seletedCategory, (value) => {
                                                             {{ unit.name }}
                                                         </option>
                                                     </select>
+                                                    <small
+                                                        v-if="
+                                                            form.errors.unit_id
+                                                        "
+                                                        style="color: red"
+                                                    >
+                                                        {{
+                                                            form.errors.unit_id
+                                                        }}
+                                                    </small>
                                                 </div>
                                             </div>
                                             <div
@@ -208,11 +324,24 @@ watch(seletedCategory, (value) => {
                                                         </span></label
                                                     >
                                                     <input
-                                                        type="text"
+                                                        type="number"
                                                         name="name"
+                                                        v-model="
+                                                            form.unit_value
+                                                        "
                                                         class="form-control"
                                                         placeholder="Unit value"
                                                     />
+                                                    <small
+                                                        v-if="
+                                                            form.errors.unit_id
+                                                        "
+                                                        style="color: red"
+                                                    >
+                                                        {{
+                                                            form.errors.unit_id
+                                                        }}
+                                                    </small>
                                                 </div>
                                             </div>
                                             <div
@@ -248,6 +377,18 @@ watch(seletedCategory, (value) => {
                                                             {{ category.name }}
                                                         </option>
                                                     </select>
+                                                    <small
+                                                        v-if="
+                                                            form.errors
+                                                                .category_id
+                                                        "
+                                                        style="color: red"
+                                                    >
+                                                        {{
+                                                            form.errors
+                                                                .category_id
+                                                        }}
+                                                    </small>
                                                 </div>
                                             </div>
                                             <div
@@ -261,6 +402,9 @@ watch(seletedCategory, (value) => {
                                                         name=""
                                                         class="form-control"
                                                         id=""
+                                                        v-model="
+                                                            form.subcategory_id
+                                                        "
                                                     >
                                                         <option value="">
                                                             --Select--
@@ -271,7 +415,9 @@ watch(seletedCategory, (value) => {
                                                             :key="
                                                                 subCategory.id
                                                             "
-                                                            value=""
+                                                            :value="
+                                                                subCategory.id
+                                                            "
                                                         >
                                                             {{
                                                                 subCategory.name
@@ -292,11 +438,26 @@ watch(seletedCategory, (value) => {
                                                         </span></label
                                                     >
                                                     <input
-                                                        type="text"
+                                                        type="number"
                                                         name="name"
+                                                        v-model="
+                                                            form.selling_price
+                                                        "
                                                         class="form-control"
                                                         placeholder="Selling Price"
                                                     />
+                                                    <small
+                                                        v-if="
+                                                            form.errors
+                                                                .selling_price
+                                                        "
+                                                        style="color: red"
+                                                    >
+                                                        {{
+                                                            form.errors
+                                                                .selling_price
+                                                        }}
+                                                    </small>
                                                 </div>
                                             </div>
                                             <div
@@ -311,11 +472,26 @@ watch(seletedCategory, (value) => {
                                                         </span></label
                                                     >
                                                     <input
-                                                        type="text"
+                                                        type="number"
                                                         name="name"
+                                                        v-model="
+                                                            form.purchase_price
+                                                        "
                                                         class="form-control"
                                                         placeholder="Purchase price"
                                                     />
+                                                    <small
+                                                        v-if="
+                                                            form.errors
+                                                                .purchase_price
+                                                        "
+                                                        style="color: red"
+                                                    >
+                                                        {{
+                                                            form.errors
+                                                                .purchase_price
+                                                        }}
+                                                    </small>
                                                 </div>
                                             </div>
                                             <div
@@ -328,12 +504,17 @@ watch(seletedCategory, (value) => {
                                                     <select
                                                         name=""
                                                         class="form-control"
-                                                        id=""
+                                                        v-model="
+                                                            form.discount_type
+                                                        "
                                                     >
-                                                        <option value="">
+                                                        <option
+                                                            value="1"
+                                                            selected
+                                                        >
                                                             Percent
                                                         </option>
-                                                        <option value="">
+                                                        <option value="0">
                                                             Amount
                                                         </option>
                                                     </select>
@@ -347,11 +528,26 @@ watch(seletedCategory, (value) => {
                                                         Discount percent (%)
                                                     </label>
                                                     <input
-                                                        type="text"
+                                                        type="number"
                                                         name="name"
+                                                        v-model="
+                                                            form.discount_value
+                                                        "
                                                         class="form-control"
                                                         placeholder="Discount"
                                                     />
+                                                    <small
+                                                        v-if="
+                                                            form.errors
+                                                                .discount_value
+                                                        "
+                                                        style="color: red"
+                                                    >
+                                                        {{
+                                                            form.errors
+                                                                .discount_value
+                                                        }}
+                                                    </small>
                                                 </div>
                                             </div>
 
@@ -363,11 +559,18 @@ watch(seletedCategory, (value) => {
                                                         Tax in percent (%)
                                                     </label>
                                                     <input
-                                                        type="text"
-                                                        name="name"
+                                                        type="number"
+                                                        name="tax"
+                                                        v-model="form.tax"
                                                         class="form-control"
                                                         placeholder="Tax"
                                                     />
+                                                    <small
+                                                        v-if="form.errors.tax"
+                                                        style="color: red"
+                                                    >
+                                                        {{ form.errors.tax }}
+                                                    </small>
                                                 </div>
                                             </div>
                                             <div
@@ -381,15 +584,18 @@ watch(seletedCategory, (value) => {
                                                         name=""
                                                         class="form-control"
                                                         id=""
+                                                        v-model="
+                                                            form.supplier_id
+                                                        "
                                                     >
                                                         <option value="">
                                                             --Select--
                                                         </option>
-                                                        <option value="">
+                                                        <option value="1">
                                                             Keysan
                                                             (0822481210240)
                                                         </option>
-                                                        <option value="">
+                                                        <option value="2">
                                                             Adelar
                                                             (0856518182619)
                                                         </option>
@@ -399,33 +605,67 @@ watch(seletedCategory, (value) => {
                                             <div
                                                 class="col-12 col-sm-12 col-md-12 col-lg-12"
                                             >
-                                                <label>Image</label>
-                                                <div class="custom-file">
-                                                    <input
-                                                        type="file"
-                                                        name="image"
-                                                        id="customFileEg1"
-                                                        class="custom-file-input"
-                                                        accept=".jpg, .png, .jpeg, .gif, .bmp, .tif, .tiff|image/*"
-                                                        required=""
-                                                    />
-                                                    <label
-                                                        class="custom-file-label"
-                                                        for="customFileEg1"
-                                                        >Choose file
-                                                    </label>
-                                                </div>
+                                                <label>Image</label
+                                                ><small class="text-danger"
+                                                    >* ( Ratio 1:1 )</small
+                                                >
+                                                <input
+                                                    type="file"
+                                                    class="form-control"
+                                                    @input="
+                                                        form.image =
+                                                            $event.target.files[0]
+                                                    "
+                                                    @change="
+                                                        handleImageSelected
+                                                    "
+                                                    ref="file"
+                                                    accept="image/*"
+                                                />
+                                                <small
+                                                    v-if="form.errors.image"
+                                                    style="color: red"
+                                                >
+                                                    {{ form.errors.image }}
+                                                </small>
                                             </div>
                                             <div class="col-12 from_part_2">
                                                 <div class="form-group">
-                                                    <hr />
                                                     <center>
+                                                        <!-- <ImagePreview /> -->
                                                         <img
-                                                            class="img-one-cati"
-                                                            id="viewer"
+                                                            v-if="imageUrl"
+                                                            width="300"
+                                                            class="mt-2"
+                                                            height="250"
+                                                            :src="imageUrl"
+                                                            alt="Image"
+                                                        />
+                                                        <img
+                                                            v-else
+                                                            class="mt-2"
+                                                            width="300"
+                                                            height="250"
                                                             src="https://6pos.6amtech.com/public/assets/admin/img/400x400/img2.jpg"
                                                             alt="Image"
                                                         />
+                                                        <div>
+                                                            <p
+                                                                v-if="
+                                                                    deleteImage
+                                                                "
+                                                                type="button"
+                                                                style="
+                                                                    color: blue;
+                                                                    text-decoration: underline;
+                                                                "
+                                                                @click="
+                                                                    resetImage
+                                                                "
+                                                            >
+                                                                Reset
+                                                            </p>
+                                                        </div>
                                                     </center>
                                                 </div>
                                             </div>

@@ -68,6 +68,7 @@ Route::middleware('auth')->group(function () {
     Route::controller(ProductController::class)->group(function (){
         Route::get('/product/add', 'index')->name('product.add');
         Route::get('/product/list', 'list')->name('product.list');
+        Route::post('/product/store', 'store')->name('product.store');
         Route::get('/product/bulk-import', 'bulkImport')->name('product.bulkImport');
         Route::get('/product/bulk-export', 'bulkExport')->name('product.bulkExport');
         Route::post('/product/get-subcategories', 'getSubcategories')->name('product.get.subcategories');

@@ -36,7 +36,7 @@ class CategoryController extends Controller
     }
     public function store(Request $request)
     {
-        $data = $request->all();
+        // $data = $request->all();
         if($request->hasFile('image')){
             $request->file('image')->store('public/files');
             $path = $request->file('image')->hashName();            
