@@ -52,7 +52,63 @@ class ProductController extends Controller
         return Redirect::route('product.list')->with('message', 'Product Created.');
    }
     public function list(){
-        return Inertia::render('Product/ListProduct');
+        return Inertia::render('Product/ListProduct', [
+            'products'  => Product::with('category')->get()
+        ]);
+    }
+
+    public function quantityUpdate(Request $request)
+    {
+        $request->validate(
+            [
+                'id'    => 'required',
+                'quantity'  => 'required'
+            ]
+        );
+        $product = Product::findOrFail($request->id);
+        $product['quantity'] = $product['quantity'] + $request->quantity ;
+        $product->update();
+    }
+
+    public function edit($id)
+    {
+        
+        return Inertia::render('Product/EditProduct', [
+            'brands'    => Brand::all(),
+            'units'     => Unit::all(),
+            'categories'    => Category::where('status', 1)->get(), 
+            'product'  => Product::find($id)
+        ]);
+    }
+
+    public function update(Request $request)
+    {
+        // dd($request->all());
+        $product = Product::findOrFail($request->id);
+        $product['name']            = $request->name;
+        $product['code']            = $request->code;
+        $product['brand_id']        = $request->brand_id;
+        $product['quantity']        = $request->quantity;
+        $product['unit_id']         = $request->unit_id;
+        $product['unit_value']      = $request->unit_value;
+        $product['category_id']     = $request->category_id;
+        $product['subcategory_id']  = $request->subcategory_id;
+        $product['selling_price']   = $request->selling_price;
+        $product['purchase_price']  = $request->purchase_price;
+        $product['discount_type']   = $request->discount_type;
+        $product['discount_value']  = $request->discount_value;
+        $product['tax']             = $request->tax;
+        $product['supplier_id']     = $request->supplier_id;
+        if($request->hasFile('image')){
+            if(file_exists($product->image)){
+                unlink($product->image);
+            }
+            $request->file('image')->store('public/files');
+            $path = $request->file('image')->hashName();            
+            $product->image = 'storage/files/' . $path ;
+        }
+        $product->update();
+        return Redirect::route('product.list')->with('success', 'Product Updated');
     }
 
     public function bulkImport()
