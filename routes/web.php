@@ -75,6 +75,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/product/quantity-update', 'quantityUpdate')->name('product.quantity.update');
         Route::get('/product/edit/{id}', 'edit')->name('product.edit');
         Route::post('/product/update', 'update')->name('product.update');
+        Route::post('/product/delete/{id}', 'delete')->name('product.delete');
     });
 
     Route::controller(StockController::class)->group(function (){

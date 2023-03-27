@@ -111,6 +111,18 @@ class ProductController extends Controller
         return Redirect::route('product.list')->with('success', 'Product Updated');
     }
 
+     public function delete($id)
+    {
+        
+        $product = Product::findOrFail($id);
+        if($product->image != null){
+            if(file_exists($product->image)){
+                unlink($product->image);
+            }
+        };
+        $product->delete();       
+    }
+
     public function bulkImport()
     {
         return Inertia::render('Product/BulkImport');

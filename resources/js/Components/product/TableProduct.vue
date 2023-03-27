@@ -1,6 +1,7 @@
 <script setup>
 import { useForm, Link } from "@inertiajs/vue3";
 import { useToastr } from "@/toastr.js";
+import { inject } from "vue";
 defineProps({ products: Object });
 const toastr = useToastr();
 const form = useForm({
@@ -20,6 +21,24 @@ function updateQuantity() {
         onError: () => {
             toastr.error("Invalid Input.");
         },
+    });
+}
+const Swal = inject("$swal");
+function deleteConfirm(id) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.post(route("product.delete", id));
+            // toastr.success("Category Created.");
+            Swal.fire("Deleted!", "Product has been deleted.", "success");
+        }
     });
 }
 </script>
@@ -87,7 +106,7 @@ function updateQuantity() {
 
                         <button
                             class="btn btn-sm btn-danger"
-                            target="_blank"
+                            @click="deleteConfirm(product.id)"
                             style="margin-right: 3px"
                         >
                             <i class="fas fa-trash"></i>
