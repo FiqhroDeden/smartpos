@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Resources\SubCategoriesResource;
+use Milon\Barcode\DNS1D;
 
 class ProductController extends Controller
 {
@@ -56,6 +57,7 @@ class ProductController extends Controller
             'products'  => Product::with('category')->get()
         ]);
     }
+    
 
     public function quantityUpdate(Request $request)
     {
@@ -132,5 +134,17 @@ class ProductController extends Controller
     {
         $subCategories = SubCategory::where('category_id', $request->id)->get();        
         return SubCategoriesResource::collection($subCategories);
+    }
+
+    public function barcodeGenerate($id)
+    {
+        $product = Product::find($id);
+        $barcode = DNS1D::getBarcodeSVG("$product->code", "PHARMA",2,60);
+        
+        return Inertia::render('Product/ProductBarcode',[
+            'product'   => $product,
+            'barcode'   => $barcode
+        ]);
+        
     }
 }

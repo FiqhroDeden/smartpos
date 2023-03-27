@@ -51,6 +51,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/category/update-status/{id}', 'updateStatus')->name('category.status.update');
         Route::post('/category/delete/{id}', 'delete')->name('category.delete');
         Route::post('/category/sub-category/delete/{id}', 'subCategoryDelete')->name('category.subCategory.delete');
+        
     });
     Route::controller(BrandController::class)->group(function (){
         Route::get('/brand/list', 'index')->name('brand.list');
@@ -76,6 +77,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/product/edit/{id}', 'edit')->name('product.edit');
         Route::post('/product/update', 'update')->name('product.update');
         Route::post('/product/delete/{id}', 'delete')->name('product.delete');
+        Route::get('/product/barcode-generate/{id}', 'barcodeGenerate')->name('product.barcode.generate');
     });
 
     Route::controller(StockController::class)->group(function (){

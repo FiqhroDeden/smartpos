@@ -112,9 +112,15 @@ function deleteConfirm(id) {
                             <i class="fas fa-trash"></i>
                         </button>
 
-                        <button class="btn btn-sm btn-info" target="_blank">
+                        <a
+                            :href="
+                                route('product.barcode.generate', product.id)
+                            "
+                            class="btn btn-sm btn-info"
+                            target="_blank"
+                        >
                             <i class="fas fa-barcode"></i>
-                        </button>
+                        </a>
                     </td>
                 </tr>
             </tbody>
