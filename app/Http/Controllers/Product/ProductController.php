@@ -12,6 +12,9 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Resources\SubCategoriesResource;
+use App\Exports\ProductsExport;
+use App\Imports\ProductsImport;
+use Maatwebsite\Excel\Facades\Excel;
 use Milon\Barcode\DNS1D;
 
 class ProductController extends Controller
@@ -136,10 +139,40 @@ class ProductController extends Controller
         };
         $product->delete();       
     }
-
-    public function bulkImport()
-    {
+ 
+    public function bulkImport(){
         return Inertia::render('Product/BulkImport');
+    }
+
+    public function import(Request $request){
+        // dd($request->all());
+        $request->validate([
+            'import_file'  => 'required'
+        ]);
+
+        try {
+            Excel::import(new ProductsImport, request()->file('import_file'));
+            return Redirect::route('product.list')->with('success', 'Products Imported');
+        } catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
+            $failures = $e->failures();
+     
+            foreach ($failures as $failure) {
+                $failure->row(); // row that went wrong
+                $failure->attribute(); // either heading key (if using heading row concern) or column index
+                $failure->errors(); // Actual error messages from Laravel validator
+                $failure->values(); // The values of the row that has failed.
+            }            
+            // dd($failures);
+            return back()->withErrors(['errors' => 'My data is missing.']);
+        }
+        
+    }
+
+    public function bulkExport()
+    {
+        $columns = ['name', 'code', 'brand_id', 'quantity', 'unit_id', 'unit_value', 'category_id', 'subcategory_id', 'selling_price',      
+                 'purchase_price', 'discount_type', 'discount_value', 'tax', 'supplier_id'];
+         return Excel::download(new ProductsExport($columns), 'products-list.xlsx');
     }
 
      public function getSubCategories(Request $request)

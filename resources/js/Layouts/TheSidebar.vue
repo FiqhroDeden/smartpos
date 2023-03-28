@@ -243,8 +243,8 @@ import { Link } from "@inertiajs/vue3";
                                 </Link>
                             </li>
                             <li class="nav-item">
-                                <a
-                                    href="#"
+                                <Link
+                                    :href="route('product.bulkExport')"
                                     class="nav-link"
                                     :class="
                                         route().current('product.bulkExport')
@@ -254,7 +254,7 @@ import { Link } from "@inertiajs/vue3";
                                 >
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Bulk Export</p>
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </li>

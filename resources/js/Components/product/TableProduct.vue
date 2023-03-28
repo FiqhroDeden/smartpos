@@ -72,17 +72,24 @@ function deleteConfirm(id) {
                     <td>{{ product.name }}</td>
                     <td>
                         <img
-                            class="img-one-plst"
+                            v-if="product.image"
                             :src="'../' + product.image"
-                            onerror="this.src='https://6pos.6amtech.com/public/assets/admin/img/160x160/img2.jpg'"
+                            width="50"
+                            height="50"
+                        />
+                        <img
+                            v-else
+                            src="https://6pos.6amtech.com/public/assets/admin/img/160x160/img2.jpg"
+                            alt="product image"
                             width="50"
                             height="50"
                         />
                     </td>
 
-                    <td>
+                    <td v-if="product.category != null">
                         {{ product.category.name }}
                     </td>
+                    <td v-else></td>
                     <td>{{ product.code }}</td>
                     <td>
                         {{ product.purchase_price }}

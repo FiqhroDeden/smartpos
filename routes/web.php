@@ -78,6 +78,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/product/update', 'update')->name('product.update');
         Route::post('/product/delete/{id}', 'delete')->name('product.delete');
         Route::get('/product/barcode-generate/{id}', 'barcodeGenerate')->name('product.barcode.generate');
+        Route::post('/product/import', 'import')->name('product.import');
     });
 
     Route::controller(StockController::class)->group(function (){
