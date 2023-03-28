@@ -1,7 +1,7 @@
 <script setup>
 import { useForm } from "@inertiajs/vue3";
 import { ref, getCurrentInstance } from "vue";
-import { useToastr } from "../../toastr.js";
+import { useToastr } from "@/toastr.js";
 
 const toastr = useToastr();
 const form = useForm({

@@ -51,6 +51,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/category/update-status/{id}', 'updateStatus')->name('category.status.update');
         Route::post('/category/delete/{id}', 'delete')->name('category.delete');
         Route::post('/category/sub-category/delete/{id}', 'subCategoryDelete')->name('category.subCategory.delete');
+        
     });
     Route::controller(BrandController::class)->group(function (){
         Route::get('/brand/list', 'index')->name('brand.list');
@@ -68,8 +69,16 @@ Route::middleware('auth')->group(function () {
     Route::controller(ProductController::class)->group(function (){
         Route::get('/product/add', 'index')->name('product.add');
         Route::get('/product/list', 'list')->name('product.list');
+        Route::post('/product/store', 'store')->name('product.store');
         Route::get('/product/bulk-import', 'bulkImport')->name('product.bulkImport');
         Route::get('/product/bulk-export', 'bulkExport')->name('product.bulkExport');
+        Route::post('/product/get-subcategories', 'getSubcategories')->name('product.get.subcategories');
+        Route::post('/product/quantity-update', 'quantityUpdate')->name('product.quantity.update');
+        Route::get('/product/edit/{id}', 'edit')->name('product.edit');
+        Route::post('/product/update', 'update')->name('product.update');
+        Route::post('/product/delete/{id}', 'delete')->name('product.delete');
+        Route::get('/product/barcode-generate/{id}', 'barcodeGenerate')->name('product.barcode.generate');
+        Route::post('/product/import', 'import')->name('product.import');
     });
 
     Route::controller(StockController::class)->group(function (){

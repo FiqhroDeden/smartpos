@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SubCategoriesResource;
 use App\Models\SubCategory;
 use Illuminate\Support\Facades\Redirect;
 
@@ -35,7 +36,7 @@ class CategoryController extends Controller
     }
     public function store(Request $request)
     {
-        $data = $request->all();
+        // $data = $request->all();
         if($request->hasFile('image')){
             $request->file('image')->store('public/files');
             $path = $request->file('image')->hashName();            
@@ -102,5 +103,5 @@ class CategoryController extends Controller
         $subCategory = SubCategory::findOrFail($id);
         $subCategory->delete();
     }
-
+       
 }
