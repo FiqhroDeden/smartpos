@@ -2,7 +2,8 @@
 import { useForm, Link } from "@inertiajs/vue3";
 import { useToastr } from "@/toastr.js";
 import { inject } from "vue";
-defineProps({ products: Object });
+import Pagination from "@/Shared/Pagination.vue";
+defineProps({ products: Object, totalProducts: Number });
 const toastr = useToastr();
 const form = useForm({
     id: null,
@@ -45,7 +46,10 @@ function deleteConfirm(id) {
 
 <template>
     <div class="card-body table-responsive p-0">
-        <table class="table table-hover text-nowrap" v-if="products.length > 0">
+        <table
+            class="table table-hover text-nowrap"
+            v-if="products.data.length > 0"
+        >
             <thead>
                 <tr>
                     <th>NAME</th>
@@ -60,7 +64,11 @@ function deleteConfirm(id) {
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="product in products" :key="product.key">
+                <tr
+                    v-for="product in products.data"
+                    :key="product.key"
+                    v-if="products.data.length > 0"
+                >
                     <td>{{ product.name }}</td>
                     <td>
                         <img
@@ -152,6 +160,9 @@ function deleteConfirm(id) {
                 <p class="mb-0">No data to show</p>
             </div>
         </div>
+    </div>
+    <div class="card-footer clearfix" v-if="products.data.length > 10">
+        <Pagination :links="products.links" />
     </div>
     <!-- Modal -->
     <div

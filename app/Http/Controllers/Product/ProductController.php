@@ -52,9 +52,21 @@ class ProductController extends Controller
         Product::create($data);        
         return Redirect::route('product.list')->with('message', 'Product Created.');
    }
-    public function list(){
+    public function list(Request $request){
         return Inertia::render('Product/ListProduct', [
-            'products'  => Product::with('category')->get()
+            'totalProducts'   => Product::count(),
+            'products'  => Product::query()->when($request->search, function($query, $search){
+                $query->where('name', 'like', '%'.$search.'%');
+            })->when($request->sort, function($query, $sort){
+                if($sort == 'default'){
+                    $query->orderBy('id', 'desc');
+                }else if($sort == 'quantity_asc'){
+                    $query->orderBy('quantity', 'asc');
+                }else if($sort == 'quantity_desc'){
+                    $query->orderBy('quantity', 'desc');
+                }
+            })->with('category')->orderBy('id', 'desc')->paginate(10)->withQueryString(),
+            
         ]);
     }
     

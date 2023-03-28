@@ -1,8 +1,24 @@
-<script setup></script>
+<script setup>
+import { ref, watch } from "vue";
+import { router } from "@inertiajs/vue3";
+import { Link } from "@inertiajs/vue3";
+let sort = ref("default");
+
+watch(sort, (value) => {
+    router.get(
+        "/product/list",
+        { sort: value },
+        {
+            preserveState: true,
+            replace: true,
+        }
+    );
+});
+</script>
 
 <template>
     <div>
-        <select name="brand_id" class="form-control" id="brand_id">
+        <select name="sort" class="form-control" v-model="sort">
             <option value="default" selected="">Default sort</option>
             <option value="quantity_asc">Quantity sort by (low to high)</option>
             <option value="quantity_desc">

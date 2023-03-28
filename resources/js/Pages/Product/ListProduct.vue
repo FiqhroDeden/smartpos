@@ -1,11 +1,11 @@
 <script setup>
-import { Head } from "@inertiajs/vue3";
+import { Head, Link } from "@inertiajs/vue3";
 import MainLayout from "@/Layouts/MainLayout.vue";
 import TableProduct from "@/Components/product/TableProduct.vue";
 import SearchFilter from "@/Components/product/SearchFilter.vue";
 import SortFilter from "@/Components/product/SortFilter.vue";
 
-defineProps({ products: Object });
+defineProps({ products: Object, totalProducts: Number });
 </script>
 
 <template>
@@ -22,7 +22,7 @@ defineProps({ products: Object });
                             <h1 class="m-0">
                                 Product List
                                 <span class="right badge badge-info">{{
-                                    products.length
+                                    totalProducts
                                 }}</span>
                             </h1>
                         </div>
