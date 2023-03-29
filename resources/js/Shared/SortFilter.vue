@@ -2,11 +2,12 @@
 import { ref, watch } from "vue";
 import { router } from "@inertiajs/vue3";
 import { Link } from "@inertiajs/vue3";
-let sort = ref("default");
 
+let sort = ref("default");
+const props = defineProps({ url: String });
 watch(sort, (value) => {
     router.get(
-        "/product/list",
+        props.url,
         { sort: value },
         {
             preserveState: true,
