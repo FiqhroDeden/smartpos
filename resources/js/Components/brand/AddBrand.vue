@@ -1,7 +1,7 @@
 <script setup>
 import { useForm } from "@inertiajs/vue3";
 import { ref, getCurrentInstance } from "vue";
-import { useToastr } from "@/toastr.js";
+import { useToastr } from "../../toastr.js";
 
 const toastr = useToastr();
 const form = useForm({
@@ -25,9 +25,9 @@ function handleImageSelected(e) {
     deleteImage.value = !deleteImage.value;
 }
 function submit() {
-    form.post("/category/store", { preserveScroll: true });
+    form.post("/brand/store", { preserveScroll: true });
     form.reset();
-    toastr.success("Category Created.");
+    toastr.success("Brand Created.");
     instance.refs.file.value = null;
     imageFile.value = null;
     imageUrl.value = null;
@@ -48,12 +48,12 @@ function resetImage() {
                 <div class="row">
                     <div class="col-12 col-sm-6 col-md-6 col-lg-6">
                         <div class="form-group">
-                            <label for="">Category name</label>
+                            <label for="">Brand name</label>
                             <input
                                 type="text"
                                 v-model="form.name"
                                 class="form-control"
-                                placeholder="Add category name"
+                                placeholder="Add Brand name"
                             />
                         </div>
                     </div>

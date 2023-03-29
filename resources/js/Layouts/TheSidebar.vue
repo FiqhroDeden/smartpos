@@ -156,10 +156,10 @@ import { Link } from "@inertiajs/vue3";
                     </li>
                     <li class="nav-item">
                         <Link
-                            :href="route('brand.add')"
+                            :href="route('brand.list')"
                             class="nav-link"
                             :class="
-                                route().current('brand.add') ? 'active' : ''
+                                route().current('brand.list') ? 'active' : ''
                             "
                         >
                             <i class="nav-icon fas fa-star"></i>
@@ -168,9 +168,11 @@ import { Link } from "@inertiajs/vue3";
                     </li>
                     <li class="nav-item">
                         <Link
-                            :href="route('unit.add')"
+                            :href="route('unit.list')"
                             class="nav-link"
-                            :class="route().current('unit.add') ? 'active' : ''"
+                            :class="
+                                route().current('unit.list') ? 'active' : ''
+                            "
                         >
                             <i class="nav-icon fas fa-tag"></i>
                             <p>Unit</p>
@@ -241,8 +243,8 @@ import { Link } from "@inertiajs/vue3";
                                 </Link>
                             </li>
                             <li class="nav-item">
-                                <a
-                                    href="#"
+                                <Link
+                                    :href="route('product.bulkExport')"
                                     class="nav-link"
                                     :class="
                                         route().current('product.bulkExport')
@@ -252,7 +254,7 @@ import { Link } from "@inertiajs/vue3";
                                 >
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Bulk Export</p>
-                                </a>
+                                </Link>
                             </li>
                         </ul>
                     </li>

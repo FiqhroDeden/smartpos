@@ -6,6 +6,8 @@ use Inertia\Inertia;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\SubCategoriesResource;
+use App\Models\SubCategory;
 use Illuminate\Support\Facades\Redirect;
 
 class CategoryController extends Controller
@@ -22,13 +24,19 @@ class CategoryController extends Controller
             
         ]);
     }
-    public function subCategory()
+    public function subCategory(Request $request)
     {
-        return Inertia::render('Category/AddSubCategory');
+        return Inertia::render('Category/SubCategory', [
+            'numbers'   => SubCategory::count(),
+            'categories'    => Category::where('status', 1)->get(),
+            'subCategories' => SubCategory::query()->when($request->search, function($query, $search){
+                $query->where('name', 'like', '%'.$search.'%');
+            })->with('categories')->paginate(10)->withQueryString(),
+        ]);
     }
     public function store(Request $request)
     {
-        $data = $request->all();
+        // $data = $request->all();
         if($request->hasFile('image')){
             $request->file('image')->store('public/files');
             $path = $request->file('image')->hashName();            
@@ -36,6 +44,13 @@ class CategoryController extends Controller
         }
         Category::create($data);        
        return Redirect::route('category.list')->with('message', 'Category Created.');
+    }
+
+    public function subCategoryStore(Request $request)
+    {
+        $data = $request->all();
+        SubCategory::create($data);
+        return Redirect::route('category.subCategory')->with('message', 'Sub Category Created.');
     }
 
     public function update(Request $request)
@@ -55,6 +70,14 @@ class CategoryController extends Controller
         return Redirect::route('category.list')->with('message', 'Category Update.');
     }
 
+    public function subCategoryUpdate(Request $request)
+    {
+        $subCategory = SubCategory::find($request->id);
+        $subCategory->name = $request->name;
+        $subCategory->category_id = $request->category_id;
+        $subCategory->update();
+    }
+
     public function updateStatus($id)
     {
         $category = Category::findOrFail($id);
@@ -72,9 +95,13 @@ class CategoryController extends Controller
                 unlink($category->image);
             }
         };
-        $category->delete();
-
-        
+        $category->delete();       
     }
 
+    public function subCategoryDelete($id)
+    {
+        $subCategory = SubCategory::findOrFail($id);
+        $subCategory->delete();
+    }
+       
 }

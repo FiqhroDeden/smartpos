@@ -1,6 +1,24 @@
 <script setup>
-import { Head } from "@inertiajs/vue3";
+import { Head, useForm } from "@inertiajs/vue3";
+import { useToastr } from "@/toastr.js";
 import MainLayout from "@/Layouts/MainLayout.vue";
+
+const toastr = useToastr();
+const form = useForm({
+    import_file: null,
+});
+function submit() {
+    form.post("/product/import", {
+        preserveScroll: true,
+        onSuccess: () => {
+            form.reset();
+            toastr.success("Products Imported.");
+        },
+        onError: () => {
+            toastr.error("Invalid file import");
+        },
+    });
+}
 </script>
 
 <template>
@@ -74,33 +92,46 @@ import MainLayout from "@/Layouts/MainLayout.vue";
                                     </h3>
 
                                     <div class="card-tools">
-                                        <button class="btn btn-primary">
+                                        <a
+                                            type="button"
+                                            class="btn btn-primary"
+                                            target="_blank"
+                                            :href="'../storage/files/import_product.xlsx'"
+                                        >
                                             Download Format
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
                                 <!-- /.card-header -->
-                                <div class="card-body">
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <input
-                                                type="file"
-                                                class="form-control"
-                                                style="border: none"
-                                                name=""
-                                                id=""
-                                            />
+                                <form
+                                    @submit.prevent="submit"
+                                    enctype="multipart/form-data"
+                                >
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <input
+                                                    type="file"
+                                                    class="form-control"
+                                                    style="border: none"
+                                                    @input="
+                                                        form.import_file =
+                                                            $event.target.files[0]
+                                                    "
+                                                    required
+                                                />
+                                            </div>
                                         </div>
-                                    </div>
 
-                                    <hr />
-                                    <button
-                                        type="submit"
-                                        class="btn btn-primary"
-                                    >
-                                        Submit
-                                    </button>
-                                </div>
+                                        <hr />
+                                        <button
+                                            type="submit"
+                                            class="btn btn-primary"
+                                        >
+                                            Submit
+                                        </button>
+                                    </div>
+                                </form>
                                 <!-- /.card-body -->
                             </div>
                             <!-- /.card -->

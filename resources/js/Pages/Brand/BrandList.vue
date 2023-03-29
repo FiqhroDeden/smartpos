@@ -1,14 +1,15 @@
 <script setup>
 import { Head } from "@inertiajs/vue3";
-import MainLayout from "@/Layouts/MainLayout.vue";
-import TableCategory from "@/Components/category/TableCategory.vue";
-import AddCategory from "@/Components/category/AddCategory.vue";
 
-defineProps({ categories: Object, numbers: Number });
+import MainLayout from "@/Layouts/MainLayout.vue";
+import BrandTable from "@/Components/brand/BrandTable.vue";
+import AddBrand from "@/Components/brand/AddBrand.vue";
+
+defineProps({ brands: Object, numbers: Number });
 </script>
 
 <template>
-    <Head title="List Category" />
+    <Head title="Brand List" />
     <main-layout>
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
@@ -16,7 +17,7 @@ defineProps({ categories: Object, numbers: Number });
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1 class="m-0">List Category</h1>
+                            <h1 class="m-0">Brand List</h1>
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-6">
@@ -24,9 +25,9 @@ defineProps({ categories: Object, numbers: Number });
                                 <li class="breadcrumb-item">
                                     <a href="#">Home</a>
                                 </li>
-                                <li class="breadcrumb-item">Category</li>
+                                <li class="breadcrumb-item">Brand</li>
                                 <li class="breadcrumb-item active">
-                                    List Category
+                                    Brand List
                                 </li>
                             </ol>
                         </div>
@@ -43,13 +44,10 @@ defineProps({ categories: Object, numbers: Number });
                 <div class="container-fluid">
                     <div class="row gx-2 gx-lg-3">
                         <div class="col-sm-12 col-lg-6 mb-3 mb-lg-2">
-                            <TableCategory
-                                :categories="categories"
-                                :numbers="numbers"
-                            />
+                            <BrandTable :brands="brands" :numbers="numbers" />
                         </div>
                         <div class="col-sm-12 col-lg-6 mb-3 mb-lg-2">
-                            <AddCategory />
+                            <AddBrand />
                         </div>
                     </div>
                 </div>

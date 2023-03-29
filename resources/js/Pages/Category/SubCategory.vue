@@ -1,14 +1,18 @@
 <script setup>
 import { Head } from "@inertiajs/vue3";
 import MainLayout from "@/Layouts/MainLayout.vue";
-import TableCategory from "@/Components/category/TableCategory.vue";
-import AddCategory from "@/Components/category/AddCategory.vue";
+import TableSubCategory from "@/Components/subCategory/TableSubCategory.vue";
+import AddSubCategory from "@/Components/subCategory/AddSubCategory.vue";
 
-defineProps({ categories: Object, numbers: Number });
+defineProps({
+    subCategories: Object,
+    numbers: Number,
+    categories: Object,
+});
 </script>
 
 <template>
-    <Head title="List Category" />
+    <Head title="Sub Category" />
     <main-layout>
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
@@ -16,7 +20,7 @@ defineProps({ categories: Object, numbers: Number });
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1 class="m-0">List Category</h1>
+                            <h1 class="m-0">Sub Category</h1>
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-6">
@@ -26,7 +30,7 @@ defineProps({ categories: Object, numbers: Number });
                                 </li>
                                 <li class="breadcrumb-item">Category</li>
                                 <li class="breadcrumb-item active">
-                                    List Category
+                                    Add Sub Category
                                 </li>
                             </ol>
                         </div>
@@ -43,13 +47,15 @@ defineProps({ categories: Object, numbers: Number });
                 <div class="container-fluid">
                     <div class="row gx-2 gx-lg-3">
                         <div class="col-sm-12 col-lg-6 mb-3 mb-lg-2">
-                            <TableCategory
+                            <TableSubCategory
                                 :categories="categories"
+                                :subCategories="subCategories"
                                 :numbers="numbers"
                             />
                         </div>
+
                         <div class="col-sm-12 col-lg-6 mb-3 mb-lg-2">
-                            <AddCategory />
+                            <AddSubCategory :categories="categories" />
                         </div>
                     </div>
                 </div>

@@ -1,14 +1,14 @@
 <script setup>
 import { Head } from "@inertiajs/vue3";
 import MainLayout from "@/Layouts/MainLayout.vue";
-import TableCategory from "@/Components/category/TableCategory.vue";
-import AddCategory from "@/Components/category/AddCategory.vue";
+import UnitTable from "@/Components/unit/UnitTable.vue";
+import AddUnit from "@/Components/unit/AddUnit.vue";
 
-defineProps({ categories: Object, numbers: Number });
+defineProps({ units: Object });
 </script>
 
 <template>
-    <Head title="List Category" />
+    <Head title="Unit List" />
     <main-layout>
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
@@ -16,7 +16,7 @@ defineProps({ categories: Object, numbers: Number });
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1 class="m-0">List Category</h1>
+                            <h1 class="m-0">Unit List</h1>
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-6">
@@ -24,9 +24,9 @@ defineProps({ categories: Object, numbers: Number });
                                 <li class="breadcrumb-item">
                                     <a href="#">Home</a>
                                 </li>
-                                <li class="breadcrumb-item">Category</li>
+                                <li class="breadcrumb-item">Unit</li>
                                 <li class="breadcrumb-item active">
-                                    List Category
+                                    Unit List
                                 </li>
                             </ol>
                         </div>
@@ -43,13 +43,10 @@ defineProps({ categories: Object, numbers: Number });
                 <div class="container-fluid">
                     <div class="row gx-2 gx-lg-3">
                         <div class="col-sm-12 col-lg-6 mb-3 mb-lg-2">
-                            <TableCategory
-                                :categories="categories"
-                                :numbers="numbers"
-                            />
+                            <UnitTable :units="units" />
                         </div>
                         <div class="col-sm-12 col-lg-6 mb-3 mb-lg-2">
-                            <AddCategory />
+                            <AddUnit />
                         </div>
                     </div>
                 </div>

@@ -1,37 +1,20 @@
 <script setup>
 import { Head, useForm } from "@inertiajs/vue3";
 import { useToastr } from "@/toastr.js";
-import { watch, ref, getCurrentInstance } from "vue";
+import { watch, ref, getCurrentInstance, onMounted } from "vue";
 import axios from "axios";
 import MainLayout from "@/Layouts/MainLayout.vue";
 
-defineProps({
+const props = defineProps({
     brands: Object,
     units: Object,
     categories: Object,
+    product: Object,
 });
-
 const toastr = useToastr();
-const form = useForm({
-    id: null,
-    name: null,
-    code: null,
-    brand_id: "",
-    quantity: null,
-    unit_id: "",
-    unit_value: null,
-    category_id: "",
-    subcategory_id: "",
-    selling_price: null,
-    purchase_price: null,
-    discount_type: 1,
-    discount_value: null,
-    tax: null,
-    supplier_id: "",
-    image: null,
-});
+const form = useForm(props.product);
 
-const seletedCategory = ref("");
+const seletedCategory = ref(props.product.category_id);
 const subCategories = ref({});
 watch(seletedCategory, (value) => {
     axios
@@ -41,6 +24,16 @@ watch(seletedCategory, (value) => {
             form.category_id = response.data.data[0].category_id;
         });
     // form.category_id = selectedCategory.value;
+});
+
+onMounted(() => {
+    imageUrl.value = "../../" + form.image;
+    axios
+        .post("/product/get-subcategories", { id: form.category_id })
+        .then((response) => {
+            subCategories.value = response.data.data;
+            form.category_id = response.data.data[0].category_id;
+        });
 });
 
 const deleteImage = ref(false);
@@ -56,12 +49,14 @@ function handleImageSelected(e) {
     reader.onload = (e) => {
         imageUrl.value = e.target.result;
     };
-    deleteImage.value = !deleteImage.value;
+    deleteImage.value = true;
 }
 function resetImage() {
     instance.refs.file.value = null;
     imageFile.value = null;
-    imageUrl.value = null;
+    imageUrl.value = "../../" + props.product.image;
+    form.image = null;
+    // console.log(imageUrl.value);
     deleteImage.value = !deleteImage.value;
 }
 
@@ -74,15 +69,11 @@ function generateCode() {
 }
 
 function submit() {
-    form.post("/product/store", {
+    form.post("/product/update", {
         preserveScroll: false,
         onSuccess: () => {
             form.reset();
-            toastr.success("Product Created.");
-            instance.refs.file.value = null;
-            imageFile.value = null;
-            imageUrl.value = null;
-            deleteImage.value = !deleteImage.value;
+            toastr.success("Product Updated.");
         },
         onError: () => {
             toastr.error("Invalid Input.");
@@ -91,7 +82,7 @@ function submit() {
 }
 </script>
 <template>
-    <Head title="Add New Product" />
+    <Head title="Edit Product" />
     <main-layout>
         <div class="content-wrapper">
             <!-- Content Header (Page header) -->
@@ -99,7 +90,7 @@ function submit() {
                 <div class="container-fluid">
                     <div class="row mb-2">
                         <div class="col-sm-6">
-                            <h1 class="m-0">Add New Product</h1>
+                            <h1 class="m-0">Edit Product</h1>
                         </div>
                         <!-- /.col -->
                         <div class="col-sm-6">
@@ -109,7 +100,7 @@ function submit() {
                                 </li>
                                 <li class="breadcrumb-item">Product</li>
                                 <li class="breadcrumb-item active">
-                                    Add Product
+                                    Edit Product
                                 </li>
                             </ol>
                         </div>
@@ -132,6 +123,10 @@ function submit() {
                                         @submit.prevent="submit"
                                         enctype="multipart/form-data"
                                     >
+                                        <input
+                                            type="hidden"
+                                            v-model="form.id"
+                                        />
                                         <div class="row">
                                             <div
                                                 class="col-12 col-sm-6 col-md-6 col-lg-6"
@@ -176,13 +171,13 @@ function submit() {
                                                             </span>
                                                         </label>
                                                         <a
-                                                            type="button"
                                                             style="
                                                                 position: absolute;
                                                                 right: 10px;
                                                                 top: 5px;
                                                                 color: blue;
                                                             "
+                                                            type="button"
                                                             @click="
                                                                 generateCode
                                                             "
@@ -654,11 +649,11 @@ function submit() {
                                                                 v-if="
                                                                     deleteImage
                                                                 "
-                                                                type="button"
                                                                 style="
                                                                     color: blue;
                                                                     text-decoration: underline;
                                                                 "
+                                                                type="button"
                                                                 @click="
                                                                     resetImage
                                                                 "
@@ -675,7 +670,7 @@ function submit() {
                                             type="submit"
                                             class="btn btn-primary"
                                         >
-                                            Submit
+                                            Update
                                         </button>
                                     </form>
                                 </div>
