@@ -92,9 +92,14 @@ function submit() {
                                     </h3>
 
                                     <div class="card-tools">
-                                        <button class="btn btn-primary">
+                                        <a
+                                            type="button"
+                                            class="btn btn-primary"
+                                            target="_blank"
+                                            :href="'../storage/files/import_product.xlsx'"
+                                        >
                                             Download Format
-                                        </button>
+                                        </a>
                                     </div>
                                 </div>
                                 <!-- /.card-header -->
