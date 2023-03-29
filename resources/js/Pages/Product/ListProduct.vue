@@ -1,11 +1,14 @@
 <script setup>
 import { Head, Link } from "@inertiajs/vue3";
+import { ref } from "vue";
 import MainLayout from "@/Layouts/MainLayout.vue";
 import TableProduct from "@/Components/product/TableProduct.vue";
-import SearchFilter from "@/Components/product/SearchFilter.vue";
-import SortFilter from "@/Components/product/SortFilter.vue";
+import SearchFilter from "@/Shared/SearchFilter.vue";
+import SortFilter from "@/Shared/SortFilter.vue";
 
 defineProps({ products: Object, totalProducts: Number });
+
+const url = ref("/product/list");
 </script>
 
 <template>
@@ -54,11 +57,11 @@ defineProps({ products: Object, totalProducts: Number });
                             <div class="card">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <SearchFilter />
+                                        <SearchFilter :url="url" />
                                     </h3>
 
                                     <div class="card-tools">
-                                        <SortFilter />
+                                        <SortFilter :url="url" />
                                     </div>
                                 </div>
                                 <!-- /.card-header -->

@@ -4,9 +4,10 @@ import { router } from "@inertiajs/vue3";
 import { Link } from "@inertiajs/vue3";
 let search = ref("");
 
+const props = defineProps({ url: String });
 function searchProduct() {
     router.get(
-        "/product/list",
+        props.url,
         { search: search.value },
         {
             preserveState: true,
