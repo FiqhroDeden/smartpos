@@ -40,6 +40,15 @@ Route::middleware('auth')->group(function () {
     Route::controller(PosController::class)->group(function (){
         Route::get('/pos', 'index')->name('pos');
         Route::get('/pos/orders', 'orders')->name('pos.orders');
+        Route::post('/pos/addtocart/{id}', 'addToCart')->name('pos.addtocart');
+        Route::post('/pos/deleteitem/{id}', 'deleteItem')->name('pos.delete.item');
+        Route::post('/pos/update-quantity', 'updateQuantity')->name('pos.update.quantity');
+        Route::get('/pos/neworder', 'newOrder')->name('pos.neworder');
+        Route::get('/pos/changecart', 'changeCart')->name('pos.change.cart');
+        Route::post('/pos/clearcart', 'clearCart')->name('pos.clear.cart');
+        Route::post('/pos/selectcustomer', 'selectCustomer')->name('pos.select.customer');
+        Route::post('/pos/cancelorder', 'cancelOrder')->name('pos.cancel.order');
+        Route::post('/pos/submit-order', 'submitOrder')->name('pos.submit.order');
     });
     Route::controller(CategoryController::class)->group(function (){
         Route::get('/category/list', 'index')->name('category.list');

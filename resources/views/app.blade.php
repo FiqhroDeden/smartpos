@@ -30,7 +30,7 @@
         @vite(['resources/js/app.js', "resources/js/Pages/{$page['component']}.vue"])
         @inertiaHead
     </head>
-    <body class="font-sans antialiased hold-transition sidebar-mini layout-fixed @if(Route::current()->uri == 'login') login-page @endif">
+    <body class="font-sans antialiased hold-transition  layout-fixed  @if(Route::current()->uri == 'pos') layout-top-nav @endif   @if(Route::current()->uri == 'login') login-page @endif">
         @inertia
     </body>
 </html>
