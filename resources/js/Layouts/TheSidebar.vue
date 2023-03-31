@@ -73,16 +73,14 @@ import { Link } from "@inertiajs/vue3";
                         </a>
                         <ul class="nav nav-treeview">
                             <li class="nav-item">
-                                <Link
+                                <a
                                     :href="route('pos')"
+                                    target="_blank"
                                     class="nav-link"
-                                    :class="
-                                        route().current('pos') ? 'active' : ''
-                                    "
                                 >
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Pos</p>
-                                </Link>
+                                </a>
                             </li>
                             <li class="nav-item">
                                 <Link
