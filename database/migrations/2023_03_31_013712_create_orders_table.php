@@ -16,12 +16,12 @@ return new class extends Migration
             $table->integer('customer_id')->default(1);
             $table->string('order_code');
             $table->string('payment_method')->default('Cash');
-            $table->bigInteger('order_amount');
-            $table->bigInteger('total_tax')->nullable();
-            $table->bigInteger('extra_discount')->nullable();
-            $table->bigInteger('coupon_discount')->nullable();
-            $table->bigInteger('paid_amount');
-            $table->bigInteger('collected_amount')->nullable();
+            $table->bigInteger('order_amount')->default(0);
+            $table->bigInteger('total_tax')->default(0);
+            $table->bigInteger('extra_discount')->default(0);
+            $table->bigInteger('coupon_discount')->default(0);
+            $table->bigInteger('paid_amount')->default(0);
+            $table->bigInteger('collected_amount')->default(0);
             $table->softDeletes();
             $table->timestamps();
         });

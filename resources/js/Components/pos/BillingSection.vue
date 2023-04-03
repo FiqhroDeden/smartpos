@@ -15,6 +15,7 @@ const props = defineProps({
     active_cart: Object,
     cart_items: Object,
 });
+
 const toastr = useToastr();
 const form = useForm({
     id: null,
@@ -124,6 +125,7 @@ function clearCart() {
         preserveState: true,
         replace: true,
     });
+    toastr.info("Cart is cleared .");
 }
 
 function selectCustomer(value) {
@@ -162,23 +164,20 @@ function cancelOrder(value) {
     });
 }
 
-// const currentCustomer = ref(props.active_cart.customer_id);
-// watch(currentCustomer, (newVal) => {
-//     console.log(currentCustomer);
-//     currentCustomer.value = newVal;
-// });
 const submitForm = useForm({
     customer_id: props.active_cart.customer_id,
     payment_method: "Cash",
     order_amount: total,
     total_tax: totalTax,
-    extra_discount: null,
-    coupon_discount: null,
+    extra_discount: 0,
+    coupon_discount: 0,
     paid_amount: grandTotal,
     collected_amount: collectedCash,
     cart_id: props.active_cart.id,
 });
 
+const lastOrder = ref({});
+// console.log(lastOrder.value);
 function submitOrder() {
     submitForm.post("/pos/submit-order", {
         preserveScroll: false,
@@ -187,13 +186,47 @@ function submitOrder() {
             collectedCash.value = null;
             submitForm.collected_amount = null;
             $("#paymentModal").modal("hide");
+            $("#printInvoice").modal("show");
             toastr.success("Order Placed Successfully.");
+            // Get the last order
+            fetch("/pos/last-order")
+                .then((response) => response.json())
+                .then((data) => {
+                    // console.log(data); // Do something with the order data
+                    lastOrder.value = data;
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
             // instance.refs.file.value = null;
         },
         onError: () => {
             toastr.error("Invalid Input.");
         },
     });
+}
+
+function formatDate(dateString) {
+    const date = new Date(dateString);
+    const options = {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+    };
+    return date.toLocaleDateString("en-US", options);
+}
+function print() {
+    const printArea = document.getElementById("printarea");
+    const printContent = printArea.innerHTML;
+    const originalContent = document.body.innerHTML;
+
+    document.body.innerHTML = printContent;
+    window.print();
+    document.body.innerHTML = originalContent;
+    location.reload();
 }
 </script>
 
@@ -439,6 +472,284 @@ function submitOrder() {
                 </div>
             </div>
 
+            <div
+                class="modal fade"
+                id="printInvoice"
+                tabindex="-1"
+                role="dialog"
+                aria-labelledby="exampleModalLabel"
+                aria-hidden="true"
+            >
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">
+                                Print invoice
+                            </h5>
+                            <button
+                                type="button"
+                                class="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                            >
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body row font-i1">
+                            <div class="col-md-12">
+                                <center>
+                                    <button
+                                        class="mt-2 btn btn-primary non-printable"
+                                        @click="print"
+                                    >
+                                        Proceed, If thermal printer is ready
+                                    </button>
+                                    <button
+                                        data-dismiss="modal"
+                                        class="mt-2 ml-2 btn btn-danger non-printable"
+                                    >
+                                        Back
+                                    </button>
+                                </center>
+                                <hr class="non-printable" />
+                            </div>
+                            <div class="row m-auto" id="printarea">
+                                <div class="width-inone">
+                                    <div class="text-center mb-3">
+                                        <h2 class="line-inone">
+                                            6pos Super shop
+                                        </h2>
+                                        <h5 class="style-inone">
+                                            House: 00, Road: 00, City: Demo,
+                                            United State
+                                        </h5>
+                                        <h5 class="style-intwo">
+                                            Phone : +000123456789
+                                        </h5>
+                                        <h5 class="style-intwo">
+                                            Email : demo@6amtech.com
+                                        </h5>
+                                        <h5 class="style-intwo">
+                                            Vat registration number :
+                                            DHUJ77788VV
+                                        </h5>
+                                    </div>
+                                    <hr class="line-dot" />
+                                    <center class="mt-3">
+                                        <h5>
+                                            Order ID :
+                                            {{ lastOrder.order_code }}
+                                        </h5>
+                                        <h5 class="font-inone fz-10">
+                                            {{
+                                                formatDate(lastOrder.created_at)
+                                            }}
+                                        </h5>
+                                    </center>
+                                    <h5 class="text-uppercase"></h5>
+                                    <hr class="line-dot" />
+                                    <table class="table mt-3">
+                                        <thead>
+                                            <tr>
+                                                <th>SL</th>
+                                                <th>DESC</th>
+                                                <th>QTY</th>
+                                                <th>Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr
+                                                v-for="(
+                                                    orderItem, index
+                                                ) in lastOrder.order_items"
+                                            >
+                                                <td>{{ index + 1 }}</td>
+                                                <td>
+                                                    <span
+                                                        class="style-inthree"
+                                                        >{{
+                                                            orderItem.product
+                                                                .name
+                                                        }}</span
+                                                    ><br />
+                                                    Price :
+                                                    {{
+                                                        orderItem.product
+                                                            .selling_price
+                                                    }}
+                                                    $ <br />
+                                                    Discount :
+                                                    {{
+                                                        orderItem.product
+                                                            .discount_type
+                                                            ? (orderItem.product
+                                                                  .selling_price *
+                                                                  orderItem
+                                                                      .product
+                                                                      .discount_value) /
+                                                              100
+                                                            : orderItem.product
+                                                                  .selling_price -
+                                                              orderItem.product
+                                                                  .discount_value
+                                                    }}
+                                                    $
+                                                </td>
+                                                <td class="">
+                                                    {{ orderItem.quantity }}
+                                                </td>
+                                                <td>
+                                                    {{
+                                                        orderItem.price *
+                                                        orderItem.quantity
+                                                    }}
+                                                    $
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                    <hr class="line-dot" />
+                                    <dl class="row text-black-50">
+                                        <dt class="col-7">Items price:</dt>
+                                        <dd class="col-5 text-right">
+                                            {{ lastOrder.order_amount }} $
+                                        </dd>
+                                        <dt class="col-7">Tax / VAT:</dt>
+                                        <dd class="col-5 text-right">
+                                            {{ lastOrder.total_tax }} $
+                                        </dd>
+                                        <dt class="col-7">Subtotal:</dt>
+                                        <dd class="col-5 text-right">
+                                            {{
+                                                lastOrder.order_amount +
+                                                lastOrder.total_tax
+                                            }}
+                                            $
+                                        </dd>
+                                        <dt class="col-7">Extra discount:</dt>
+                                        <dd class="col-5 text-right">
+                                            {{ lastOrder.extra_discount }} $
+                                        </dd>
+                                        <dt class="col-7">Coupon discount:</dt>
+                                        <dd class="col-5 text-right">
+                                            {{ lastOrder.extra_discount }} $
+                                        </dd>
+                                        <dt class="col-7 total">Total:</dt>
+                                        <dd class="col-5 text-right total">
+                                            {{ lastOrder.paid_amount }} $
+                                        </dd>
+                                    </dl>
+                                    <div
+                                        class="d-flex flex-wrap justify-content-between border-top"
+                                    >
+                                        <span>Paid by: Cash</span>
+                                        <span
+                                            >Amount:
+                                            {{ lastOrder.collected_amount }}
+                                            $</span
+                                        >
+                                        <span
+                                            >Change:
+                                            {{
+                                                lastOrder.collected_amount -
+                                                lastOrder.paid_amount
+                                            }}
+                                            $</span
+                                        >
+                                    </div>
+                                    <hr class="line-dot" />
+                                    <h5 class="text-center">"""THANK YOU"""</h5>
+                                    <hr class="line-dot" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div
+                class="modal fade"
+                id="paymentModal"
+                tabindex="-1"
+                role="dialog"
+                aria-labelledby="exampleModalLabel"
+                aria-hidden="true"
+            >
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">
+                                Payment
+                            </h5>
+                            <button
+                                type="button"
+                                class="close"
+                                data-dismiss="modal"
+                                aria-label="Close"
+                            >
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <form
+                                @submit.prevent="submitOrder"
+                                enctype="multipart/form-data"
+                            >
+                                <div align="right">
+                                    <h4>
+                                        Total : <b>{{ grandTotal }} $ </b>
+                                    </h4>
+                                </div>
+                                <div class="form-group">
+                                    <label class="input-label" for=""
+                                        >Type</label
+                                    >
+                                    <select
+                                        onchange="payment_option(this);"
+                                        name="type"
+                                        id="payment_opp"
+                                        class="form-control select2"
+                                        required=""
+                                    >
+                                        <option value="1">Cash</option>
+                                        <option value="4">
+                                            Standard Chartered
+                                        </option>
+                                    </select>
+                                </div>
+                                <div class="form-group" id="collected_cash">
+                                    <label class="input-label" for=""
+                                        >Collected cash ($)</label
+                                    >
+                                    <input
+                                        type="number"
+                                        id="cash_amount"
+                                        v-model.number="collectedCash"
+                                        class="form-control"
+                                        :min="grandTotal"
+                                        required
+                                    />
+                                </div>
+                                <div align="right">
+                                    <h5 v-if="returnedAmount !== null">
+                                        Returned amount:
+                                        <b>{{ returnedAmount }} $</b>
+                                    </h5>
+                                </div>
+                                <hr v-if="returnedAmount !== null" />
+                                <div class="d-flex justify-content-end">
+                                    <button
+                                        class="btn btn-primary"
+                                        id="order_complete"
+                                        type="submit"
+                                    >
+                                        Submit
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <div class="modal fade" id="add-customer" tabindex="-1">
                 <div class="modal-dialog">
                     <div class="modal-content">
@@ -743,90 +1054,6 @@ function submitOrder() {
                     </div>
                 </div>
             </div>
-            <div
-                class="modal fade"
-                id="paymentModal"
-                tabindex="-1"
-                role="dialog"
-                aria-labelledby="exampleModalLabel"
-                aria-hidden="true"
-            >
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">
-                                Payment
-                            </h5>
-                            <button
-                                type="button"
-                                class="close"
-                                data-dismiss="modal"
-                                aria-label="Close"
-                            >
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form
-                                @submit.prevent="submitOrder"
-                                enctype="multipart/form-data"
-                            >
-                                <div align="right">
-                                    <h4>
-                                        Total : <b>{{ grandTotal }} $ </b>
-                                    </h4>
-                                </div>
-                                <div class="form-group">
-                                    <label class="input-label" for=""
-                                        >Type</label
-                                    >
-                                    <select
-                                        onchange="payment_option(this);"
-                                        name="type"
-                                        id="payment_opp"
-                                        class="form-control select2"
-                                        required=""
-                                    >
-                                        <option value="1">Cash</option>
-                                        <option value="4">
-                                            Standard Chartered
-                                        </option>
-                                    </select>
-                                </div>
-                                <div class="form-group" id="collected_cash">
-                                    <label class="input-label" for=""
-                                        >Collected cash ($)</label
-                                    >
-                                    <input
-                                        type="number"
-                                        id="cash_amount"
-                                        v-model.number="collectedCash"
-                                        class="form-control"
-                                        :min="grandTotal"
-                                        required
-                                    />
-                                </div>
-                                <div align="right">
-                                    <h5 v-if="returnedAmount !== null">
-                                        Returned amount:
-                                        <b>{{ returnedAmount }} $</b>
-                                    </h5>
-                                </div>
-                                <hr v-if="returnedAmount !== null" />
-                                <div class="d-flex justify-content-end">
-                                    <button
-                                        class="btn btn-primary"
-                                        id="order_complete"
-                                        type="submit"
-                                    >
-                                        Submit
-                                    </button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <div class="modal fade" id="short-cut-keys" tabindex="-1">
                 <div class="modal-dialog">
@@ -872,6 +1099,28 @@ function submitOrder() {
     </div>
 </template>
 <style scoped>
+@media print {
+    /* Atur margin dan padding pada halaman cetak */
+    @page {
+        margin: 0;
+        padding: 0;
+    }
+
+    /* Atur lebar konten pada halaman cetak */
+    .width-inone {
+        width: 100mm;
+        margin: 0 auto;
+        padding: 10mm;
+        border: none;
+        /* border: 1px solid #ccc; */
+        /* border-radius: 10px; */
+    }
+
+    /* Sembunyikan bagian footer ketika dicetak */
+    .no-print {
+        display: none;
+    }
+}
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
     -webkit-appearance: none;
@@ -904,5 +1153,15 @@ img {
     max-height: calc(100vh - 134px);
     overflow-y: auto;
     overflow-x: hidden;
+}
+.modal-body {
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+}
+::-webkit-scrollbar {
+    display: none;
+}
+.modal-content1 {
+    padding: 20px !important;
 }
 </style>

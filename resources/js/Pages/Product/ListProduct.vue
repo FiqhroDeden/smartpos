@@ -57,7 +57,10 @@ const url = ref("/product/list");
                             <div class="card">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <SearchFilter :url="url" />
+                                        <SearchFilter
+                                            :url="url"
+                                            :placeholder="'Search product by name'"
+                                        />
                                     </h3>
 
                                     <div class="card-tools">

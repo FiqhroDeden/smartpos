@@ -14,18 +14,27 @@ use Inertia\Inertia;
 
 class PosController extends Controller
 {
-    public function index(){
+    public function index(Request $request){
         $active_cart = Cart::where('active', 1)->first();
         return Inertia::render('Pos/Pos',[
             'categories'    => Category::where('status', 1)->get(),
-            'products'      => Product::all(),
+            'products'      => Product::query()->when($request->category, function($query, $category){
+                $query->where('category_id', $category);
+            })->get(),
             'carts'          => Cart::orderBy('code', 'asc')->get(),
             'active_cart'   =>Cart::where('active', 1)->first(),
-            'cart_items'     => CartItem::where('cart_id', $active_cart->id)->with('product')->get(),           
+            'cart_items'     => CartItem::where('cart_id', $active_cart->id)->with('product')->get(),  
+            'last_order'    => Order::orderBy('id', 'desc')->with('orderItems')->first()         
+            // 'last_order'    => Order::orderBy('id', 'desc')->with('orderItems')->first()         
         ]);
     }
-    public function orders(){
-        return Inertia::render('Pos/Orders');
+    public function orders(Request $request){
+        return Inertia::render('Pos/Orders', [
+            'orders'    => Order::query()->when($request->search, function($query, $search){
+                $query->where('order_code', 'like', '%'.$search.'%');
+            })->with('orderItems.product')->orderBy('id', 'desc')->paginate(10)->withQueryString(),
+            'numbers'   => Order::count()
+        ]);
     }
 
     public function selectCustomer(Request $request)
@@ -77,17 +86,30 @@ class PosController extends Controller
         return Redirect::back();
     }
 
-    public function addToCart($id)
+    public function checkProduct($code)
     {
+        // return response()->json(['message' => 'Product code received and processed successfully.']);   
+        $product = Product::where('code', $code)->first();
+        if($product)
+        {
+            return response()->json($product);
+        }else{
+            return response(['error' => 'Product not found']);
+        }
+    }
+
+    public function addToCart($code)
+    {
+        $product = Product::where('code', $code)->first();
         $active_cart = Cart::where('active', 1)->first();
-        $cart_item = CartItem::where('product_id', $id)->where('cart_id', $active_cart->id)->first();
+        $cart_item = CartItem::where('product_id', $product->id)->where('cart_id', $active_cart->id)->first();
         // dd($cart_item);
         if($cart_item){
             $cart_item['quantity'] += 1;
             $cart_item->update();
         }else{            
             $data['cart_id'] = $active_cart->id;
-            $data['product_id'] = $id;
+            $data['product_id'] = $product->id;
             $data['quantity'] = 1; 
             CartItem::create($data);
         }
@@ -116,7 +138,8 @@ class PosController extends Controller
     {
         
         // dd($request->all());
-        $cartItems = CartItem::where('cart_id', $request->cart_id)->with('product')->get();
+        $active_cart = Cart::where('active', 1)->first();
+        $cartItems = CartItem::where('cart_id', $active_cart->id)->with('product')->get();
         $orderItems = [];
         foreach ($cartItems as $cartItem){
             if($cartItem->product->discount_value){
@@ -135,6 +158,9 @@ class PosController extends Controller
                 'price' => $price,
             ]);
             $orderItems[] = $orderItem;
+            // Decrease product stock
+            $product = Product::findOrFail($cartItem->product_id);
+            $product->decrement('quantity', $cartItem->quantity);
         }
 
         $order = new Order([
@@ -151,18 +177,19 @@ class PosController extends Controller
         $order->save();
         $order->orderItems()->saveMany($orderItems);
         
-        $cart = Cart::find($request->cart_id);
-        if($cart->code == 'Cart-1'){
-            $cart->delete();
-            $data['code'] = 'Cart-1';
-            $data['active'] = 1;
-            Cart::create($data);
-        }else{
-            $cart->delete();
-            $cart = Cart::first();
-            $cart['active'] = 1;
-            $cart->update();
-        }
+        $cart = Cart::where('active', 1)->first();       
+            if($cart->code == 'Cart-1'){
+                $cart->delete();
+                $data['code'] = 'Cart-1';
+                $data['active'] = 1;
+                Cart::create($data);
+            }else{
+                $cart->delete();
+                $cart = Cart::first();
+                $cart['active'] = 1;
+                $cart->update();
+            }        
+        
         return Redirect::back();
     }
 

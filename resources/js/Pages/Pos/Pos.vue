@@ -8,6 +8,7 @@ const props = defineProps({
     carts: Object,
     active_cart: Object,
     cart_items: Object,
+    last_order: Object,
 });
 </script>
 
@@ -26,7 +27,7 @@ const props = defineProps({
                         class="brand-image img-circle elevation-3"
                         style="opacity: 0.8"
                     />
-                    <!-- <span class="brand-text font-weight-light">SMART POS</span> -->
+                    <h3 style="color: black">SMART POS</h3>
                 </a>
 
                 <button
@@ -81,6 +82,7 @@ const props = defineProps({
                                 :carts="carts"
                                 :cart_items="cart_items"
                                 :active_cart="active_cart"
+                                :last_order="last_order"
                             />
                         </div>
                         <!-- /.col-md-6 -->

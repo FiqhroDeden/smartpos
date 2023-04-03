@@ -2,13 +2,13 @@
 import { ref, watch } from "vue";
 import { router } from "@inertiajs/vue3";
 import { Link } from "@inertiajs/vue3";
-let search = ref("");
+let keyword = ref("");
 
-const props = defineProps({ url: String });
-function searchProduct() {
+const props = defineProps({ url: String, placeholder: String });
+function search() {
     router.get(
         props.url,
-        { search: search.value },
+        { search: keyword.value },
         {
             preserveState: true,
             replace: true,
@@ -32,13 +32,13 @@ function searchProduct() {
         <input
             type="text"
             name="table_search"
-            v-model="search"
+            v-model="keyword"
             class="form-control float-right"
-            placeholder="Search product by name"
+            :placeholder="placeholder"
             autocomplete="off"
         />
         <div class="input-group-append">
-            <button @click="searchProduct" class="btn btn-default">
+            <button @click="search" class="btn btn-default">
                 <i class="fas fa-search"></i>
             </button>
         </div>

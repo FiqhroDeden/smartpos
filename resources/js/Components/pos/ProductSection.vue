@@ -1,16 +1,49 @@
 <script setup>
-import { useForm, Link } from "@inertiajs/vue3";
+import { useForm, Link, router } from "@inertiajs/vue3";
 import { useToastr } from "@/toastr.js";
+import { ref, watch } from "vue";
 
 const props = defineProps({ products: Object, categories: Object });
 
 const toastr = useToastr();
 const form = useForm({});
-
-function addToCart(id) {
-    form.post(route("pos.addtocart", id));
+const enteredProduct = ref(null);
+function addToCart(code) {
+    form.post(route("pos.addtocart", code));
     toastr.success("Item has been added in your cart");
 }
+let category = ref("");
+
+watch(category, (value) => {
+    router.get(
+        "/pos",
+        { category: value },
+        {
+            preserveState: true,
+            replace: true,
+        }
+    );
+});
+
+watch(enteredProduct, (value) => {
+    if (value) {
+        if (value.length >= 6) {
+            fetch(`/pos/check-product/${value}`)
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.code) {
+                        addToCart(data.code);
+                        enteredProduct.value = null;
+                    }
+                    // console.log(data.code); // Do something with the order data
+                    // addToCart(data.code);
+                })
+                .catch((error) => {
+                    console.error(error);
+                });
+        }
+    }
+});
 </script>
 
 <template>
@@ -22,8 +55,10 @@ function addToCart(id) {
         <div class="card-body">
             <div class="row">
                 <div class="col-md-6">
-                    <select class="form-control">
-                        <option value="">All Categories</option>
+                    <select class="form-control" v-model="category">
+                        <option value="" :selected="category">
+                            All Categories
+                        </option>
                         <option
                             :value="category.id"
                             v-for="category in categories"
@@ -38,13 +73,16 @@ function addToCart(id) {
                         <input
                             type="text"
                             name="table_search"
+                            v-model="enteredProduct"
                             class="form-control float-right"
-                            placeholder="Search product by Code"
+                            placeholder="Scan product barcode or enter product code here"
                             autocomplete="off"
+                            autofocus
+                            max="6"
                         />
                         <div class="input-group-append">
                             <button class="btn btn-default">
-                                <i class="fas fa-search"></i>
+                                <i class="fas fa-barcode"></i>
                             </button>
                         </div>
                     </div>
@@ -58,7 +96,7 @@ function addToCart(id) {
                         class=""
                         v-for="product in products"
                         :key="product.id"
-                        @click="addToCart(product.id)"
+                        @click="addToCart(product.code)"
                         type="button"
                     >
                         <input
@@ -114,11 +152,7 @@ function addToCart(id) {
                                         </p>
 
                                         <p
-                                            class="text-muted"
-                                            style="
-                                                text-decoration: line-through;
-                                                display: inline;
-                                            "
+                                            class="text-muted discount-text"
                                             v-if="product.discount_value"
                                         >
                                             {{ product.selling_price }} $
@@ -142,6 +176,10 @@ function addToCart(id) {
 </template>
 
 <style scoped>
+.discount-text {
+    text-decoration: line-through;
+    display: inline;
+}
 .pos-item-wrap {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
