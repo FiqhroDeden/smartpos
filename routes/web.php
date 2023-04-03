@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Business\AccountController;
 use App\Http\Controllers\Business\CouponController;
 use App\Http\Controllers\Customer\CustomerController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\Product\CategoryController;
 use App\Http\Controllers\PosController;
 use App\Http\Controllers\Product\BrandController;
@@ -13,6 +14,7 @@ use App\Http\Controllers\Product\UnitController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SettingController;
 use App\Http\Controllers\Supplier\SupplierController;
+use App\Models\Order;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -36,6 +38,8 @@ Route::middleware('auth')->group(function () {
         return Inertia::render('Dashboard');
     })->name('dashboard');
     
+
+    
     
     Route::controller(PosController::class)->group(function (){
         Route::get('/pos', 'index')->name('pos');
@@ -49,6 +53,11 @@ Route::middleware('auth')->group(function () {
         Route::post('/pos/selectcustomer', 'selectCustomer')->name('pos.select.customer');
         Route::post('/pos/cancelorder', 'cancelOrder')->name('pos.cancel.order');
         Route::post('/pos/submit-order', 'submitOrder')->name('pos.submit.order');
+        Route::get('/pos/last-order', function(){
+            $lastOrder = Order::latest()->with('orderItems.product')->first();
+            return response()->json($lastOrder);
+        });
+        Route::get("/pos/check-product/{code}", 'checkProduct')->name('pos.check.product');
     });
     Route::controller(CategoryController::class)->group(function (){
         Route::get('/category/list', 'index')->name('category.list');
