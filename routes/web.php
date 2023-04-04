@@ -104,6 +104,11 @@ Route::middleware('auth')->group(function () {
     });
     Route::controller(CouponController::class)->group(function (){
         Route::get('/coupon/add-new', 'index')->name('coupon.add');
+        Route::post('/coupon/store', 'store')->name('coupon.store');
+        Route::post('/coupon/status-update/{id}', 'statusUpdate')->name('coupon.status.update');
+        Route::post('/coupon/delete/{id}', 'delete')->name('coupon.delete');
+        Route::get('/coupon/edit/{id}', 'edit')->name('coupon.edit');
+        Route::post('/coupon/update', 'update')->name('coupon.update');
     });
     Route::controller(AccountController::class)->group(function (){
         Route::get('/account/add', 'index')->name('account.add');
