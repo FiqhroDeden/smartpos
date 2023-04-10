@@ -112,7 +112,11 @@ Route::middleware('auth')->group(function () {
     });
     Route::controller(AccountController::class)->group(function (){
         Route::get('/account/add', 'index')->name('account.add');
+        Route::post('/account/store', 'store')->name('account.store');
+        Route::get('/account/edit/{id}', 'edit')->name('account.edit');
+        Route::post('/account/update', 'update')->name('account.update');
         Route::get('/account/list', 'list')->name('account.list');
+        Route::post('/account/delete/{id}', 'delete')->name('account.delete');
         Route::get('/account/add-expense', 'addExpense')->name('account.addExpense');
         Route::get('/account/add-income', 'addIncome')->name('account.addIncome');
         Route::get('/account/add-transfer', 'addTransfer')->name('account.addTransfer');
@@ -122,6 +126,12 @@ Route::middleware('auth')->group(function () {
     Route::controller(CustomerController::class)->group(function (){
         Route::get('/customer/add', 'index')->name('customer.add');
         Route::get('/customer/list', 'list')->name('customer.list');
+        Route::post('/customer/store', 'store')->name('customer.store');
+        Route::get('/customer/edit/{id}', 'edit')->name('customer.edit');
+        Route::post('/customer/update', 'update')->name('customer.update');
+        Route::post('/customer/delete/{id}', 'delete')->name('customer.delete');
+        Route::post('/customer/addbalance', 'addBalance')->name('customer.addbalance');
+        Route::get('/customer/view/{id}', 'view')->name('customer.view');
     });
     Route::controller(SupplierController::class)->group(function (){
         Route::get('/supplier/add', 'index')->name('supplier.add');
