@@ -1,27 +1,20 @@
 <script setup>
 import { Head, useForm } from "@inertiajs/vue3";
 import { useToastr } from "@/toastr.js";
-
+import { watch, ref, getCurrentInstance } from "vue";
 import MainLayout from "@/Layouts/MainLayout.vue";
 
+const props = defineProps({ customer: Object });
 const toastr = useToastr();
-const form = useForm({
-    name: null,
-    phone: null,
-    email: null,
-    state: null,
-    city: null,
-    zipcode: null,
-    address: null,
-});
+const form = useForm(props.customer);
 
 function submit() {
-    form.post(route("customer.store"), {
+    form.post(route("customer.update"), {
         preserveScroll: true,
         replace: true,
         onSuccess: () => {
             form.reset();
-            toastr.success("Customer Created.");
+            toastr.success("Customer Update.");
         },
         onError: () => {
             toastr.error("Invalid Input");
@@ -74,8 +67,7 @@ function submit() {
                                     >
                                         <input
                                             type="hidden"
-                                            name="_token"
-                                            value="6ygODdB6JbOb9ADW7Y8V6KxAynhVeLQVmC3DALxc"
+                                            v-model="form.id"
                                         />
                                         <div class="row">
                                             <div

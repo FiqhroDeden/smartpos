@@ -1,6 +1,27 @@
 <script setup>
-import { Head, Link } from "@inertiajs/vue3";
+import { Head, Link, router } from "@inertiajs/vue3";
+import { inject } from "vue";
 import MainLayout from "@/Layouts/MainLayout.vue";
+
+const props = defineProps({ accounts: Object });
+const Swal = inject("$swal");
+function deleteConfirm(id) {
+    Swal.fire({
+        title: "Are you sure?",
+        text: "You won't be able to revert this!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+    }).then((result) => {
+        if (result.isConfirmed) {
+            router.post(route("account.delete", id));
+            // toastr.success("Category Created.");
+            Swal.fire("Deleted!", "Account has been deleted.", "success");
+        }
+    });
+}
 </script>
 
 <template>
@@ -24,7 +45,7 @@ import MainLayout from "@/Layouts/MainLayout.vue";
                                     Account Management
                                 </li>
                                 <li class="breadcrumb-item active">
-                                    List Account
+                                    List Accounts
                                 </li>
                             </ol>
                         </div>
@@ -44,7 +65,7 @@ import MainLayout from "@/Layouts/MainLayout.vue";
                             <div class="card">
                                 <div class="card-header">
                                     <h3 class="card-title">
-                                        <div class="input-group">
+                                        <!-- <div class="input-group">
                                             <input
                                                 type="text"
                                                 name="table_search"
@@ -62,7 +83,7 @@ import MainLayout from "@/Layouts/MainLayout.vue";
                                                     ></i>
                                                 </button>
                                             </div>
-                                        </div>
+                                        </div> -->
                                     </h3>
 
                                     <div class="card-tools">
@@ -88,24 +109,57 @@ import MainLayout from "@/Layouts/MainLayout.vue";
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <tr>
-                                                <td>1</td>
-                                                <td>Receivable</td>
-                                                <td>Balance : 4140 $</td>
+                                            <tr
+                                                v-for="(
+                                                    account, index
+                                                ) in accounts"
+                                                :key="account.id"
+                                            >
+                                                <td>{{ index + 1 }}</td>
+                                                <td>
+                                                    {{ account.title }}
+                                                    <br />{{
+                                                        account.account_number
+                                                    }}
+                                                    <br />{{
+                                                        account.description
+                                                    }}
+                                                </td>
+                                                <td>
+                                                    Balance :
+                                                    {{ account.balance }} $
+                                                    <br />
+                                                    Total In :
+                                                    {{ account.in }} $
+                                                    <br />
+                                                    Total Out :
+                                                    {{ account.out }} $
+                                                </td>
 
-                                                <td align="center">
-                                                    <button
-                                                        class="btn btn-sm btn-warning"
+                                                <td v-if="!account.default">
+                                                    <Link
+                                                        :href="
+                                                            route(
+                                                                'account.edit',
+                                                                account.id
+                                                            )
+                                                        "
+                                                        class="btn btn-sm btn-warning mr-2"
                                                         target="_blank"
                                                     >
                                                         <i
                                                             class="fas fa-edit"
                                                         ></i>
-                                                    </button>
+                                                    </Link>
 
                                                     <button
                                                         class="btn btn-sm btn-danger"
                                                         target="_blank"
+                                                        @click="
+                                                            deleteConfirm(
+                                                                account.id
+                                                            )
+                                                        "
                                                     >
                                                         <i
                                                             class="fas fa-trash"
@@ -113,6 +167,7 @@ import MainLayout from "@/Layouts/MainLayout.vue";
                                                     </button>
                                                     <br />
                                                 </td>
+                                                <td v-else>Default</td>
                                             </tr>
                                         </tbody>
                                     </table>

@@ -3,19 +3,15 @@ import { Head, useForm } from "@inertiajs/vue3";
 import { useToastr } from "@/toastr.js";
 import MainLayout from "@/Layouts/MainLayout.vue";
 
+const props = defineProps({ account: Object });
 const toastr = useToastr();
-const form = useForm({
-    title: null,
-    description: null,
-    balance: 0,
-    account_number: null,
-});
+const form = useForm(props.account);
 
 function submit() {
-    form.post(route("account.store"), {
+    form.post(route("account.update"), {
         onSuccess: () => {
             form.reset();
-            toastr.success("Account Created.");
+            toastr.success("Account Update.");
         },
         onError: () => {
             toastr.error("Invalid Input");
@@ -68,6 +64,10 @@ function submit() {
                                         @submit.prevent="submit"
                                         enctype="multipart/form-data"
                                     >
+                                        <input
+                                            type="hidden"
+                                            v-model="form.id"
+                                        />
                                         <div class="row">
                                             <div
                                                 class="col-12 col-sm-6 col-md-6 col-lg-6"
@@ -112,33 +112,6 @@ function submit() {
                                                         class="form-control"
                                                         placeholder="Description"
                                                     />
-                                                </div>
-                                            </div>
-                                            <div
-                                                class="col-12 col-sm-6 col-md-6 col-lg-6"
-                                            >
-                                                <div class="form-group">
-                                                    <label for="">
-                                                        Balance
-                                                    </label>
-                                                    <input
-                                                        type="number"
-                                                        name="balance"
-                                                        v-model="form.balance"
-                                                        class="form-control"
-                                                        placeholder="Initial Balance"
-                                                        required
-                                                    />
-                                                    <small
-                                                        v-if="
-                                                            form.errors.balance
-                                                        "
-                                                        style="color: red"
-                                                    >
-                                                        {{
-                                                            form.errors.balance
-                                                        }}
-                                                    </small>
                                                 </div>
                                             </div>
                                             <div
